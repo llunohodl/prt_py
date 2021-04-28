@@ -11,10 +11,10 @@ except:
 
 class SerThread(QtCore.QThread):
     """
-    Thread to handle incoming &amp; outgoing serial data
+    Thread to handle incoming &amp; outgoing app_serial data
     """
 
-    def __init__(self, portname, baudrate):  # Initialise with serial port details
+    def __init__(self, portname, baudrate):  # Initialise with app_serial port details
         QtCore.QThread.__init__(self)
         self.portname, self.baudrate = portname, baudrate
         self.txq = Queue.Queue()
@@ -25,11 +25,11 @@ class SerThread(QtCore.QThread):
     @staticmethod
     def serial_port_list():
         """
-        Lists serial port names
+        Lists app_serial port names
         :raises EnvironmentError:
             On unsupported or unknown platforms
         :returns:
-            A list of the serial ports available on the system
+            A list of the app_serial ports available on the system
         """
         if sys.platform.startswith('win'):
             ports = ['COM%s' % (i + 1) for i in range(256)]
@@ -53,25 +53,25 @@ class SerThread(QtCore.QThread):
 
     def ser_put(self, s):
         """
-        Write data to serial port
+        Write data to app_serial port
         :param s: data to port
         :return:
         """
         self.txq.put(s)
 
-    def ser_get(self):  # Write incoming serial data to screen
+    def ser_get(self):  # Write incoming app_serial data to screen
         """
-        Read data from serial port
+        Read data from app_serial port
         :return: number of bytes
         """
         if not self.rxq.empty():
-            return self.rxq.get_nowait()  # If Rx data in queue, write to serial port
+            return self.rxq.get_nowait()  # If Rx data in queue, write to app_serial port
         return []
 
     def ser_runing(self):
         return self.running
 
-    def run(self):  # Run serial reader thread
+    def run(self):  # Run app_serial reader thread
         try:
             self.ser = serial.Serial(self.portname, self.baudrate, timeout=0.001)
             time.sleep(0.001)
@@ -86,14 +86,14 @@ class SerThread(QtCore.QThread):
         while self.running:
             try:
                 s = self.ser.read_all() #read(self.ser.in_waiting or 1)
-                if s:  # Get data from serial port
+                if s:  # Get data from app_serial port
                     self.rxq.put(s)
                     if len(s) < 10:
                         print("Rx< " + SerThread.bytes_str(s))
                     else:
                         print("Rx< " + SerThread.bytes_str(s[:10]) + " ...")
                 if not self.txq.empty():
-                    txd = self.txq.get_nowait()  # If Tx data in queue, write to serial port
+                    txd = self.txq.get_nowait()  # If Tx data in queue, write to app_serial port
                     self.ser.write(txd)
                     if len(txd) < 10:
                         print("Tx> " + SerThread.bytes_str(txd))
@@ -102,7 +102,7 @@ class SerThread(QtCore.QThread):
             except:
                 self.ser = None
                 self.running = False
-        if self.ser:  # Close serial port when thread finished
+        if self.ser:  # Close app_serial port when thread finished
             self.ser.close()
             print("ser " + self.portname + " closed!")
             self.ser = None

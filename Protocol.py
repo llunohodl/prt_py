@@ -1,6 +1,6 @@
 import time
 import copy
-from PDU import PDU
+from prt_py.PDU import PDU
 
 class Protocol:
     """
